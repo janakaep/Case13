@@ -151,52 +151,199 @@ class PinnacleAIDemo {
     }
   }
 
-  getPayload() {
-    const activeTab = document.querySelector('.tab-content.active').id;
+  // getPayload() {
+  //   const activeTab = document.querySelector('.tab-content.active').id;
     
-    switch (activeTab) {
+  //   switch (activeTab) {
+  //     case 'json-tab':
+  //       try {
+  //         return JSON.parse(document.getElementById('json-input').value);
+  //       } catch (e) {
+  //         throw new Error('Invalid JSON format');
+  //       }
+      
+  //     case 'file-tab':
+  //       const fileInput = document.getElementById('file-input');
+  //       if (fileInput.files[0]) {
+  //         return { fileName: fileInput.files[0].name };
+  //       }
+  //       throw new Error('Please select a file');
+      
+  //     // case 'text-tab':
+  //     //   const text = document.getElementById('text-input').value;
+  //     //   if (!text.trim()) {
+  //     //     throw new Error('Please enter text to process');
+  //     //   }
+  //     //   return { text: text.trim() };
+
+  //     case 'text-tab':
+  //       const text = document.getElementById('text-input').value;
+  //       const taskType = document.getElementById('task-type').value;
+  //       if (!text.trim()) {
+  //         throw new Error('Please enter text to process');
+  //       }
+        
+  //       // For generateResponse action, use 'prompt', for others use 'text'
+  //       if (this.currentAction === 'generateResponse') {
+  //         return { prompt: text.trim(), task: taskType };
+  //       } else {
+  //         return { text: text.trim(), task: taskType };
+  //       }
+
+        
+
+      
+  //     default:
+  //       throw new Error('No input provided');
+  //   }
+  // }
+
+  // Add PDF.js to your index.html first:
+// <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+// <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
+  // Replace your existing getPayload method with this corrected version:
+  async getPayload() {
+    const activeTab = document.querySelector('.tab-content.active');
+    
+    switch (activeTab.id) {
       case 'json-tab':
         try {
-          return JSON.parse(document.getElementById('json-input').value);
+          const jsonValue = document.getElementById('json-input').value;
+          return JSON.parse(jsonValue);
         } catch (e) {
           throw new Error('Invalid JSON format');
         }
-      
+        
       case 'file-tab':
         const fileInput = document.getElementById('file-input');
-        if (fileInput.files[0]) {
-          return { fileName: fileInput.files[0].name };
+        const file = fileInput.files[0];
+        
+        if (file) {
+          console.log('🔄 Processing uploaded file...', file.name);
+          const extractedText = await this.handleFileUpload(file);
+          
+          if (extractedText && extractedText.trim().length > 0) {
+            console.log('✅ File text extracted:', extractedText.length, 'characters');
+            return { 
+              text: extractedText.trim(),
+              fileName: file.name,
+              fileType: file.type 
+            };
+          } else {
+            throw new Error('Could not extract text from the uploaded file');
+          }
         }
-        throw new Error('Please select a file');
-      
-      // case 'text-tab':
-      //   const text = document.getElementById('text-input').value;
-      //   if (!text.trim()) {
-      //     throw new Error('Please enter text to process');
-      //   }
-      //   return { text: text.trim() };
-
+        
+        throw new Error('Please select a file to upload');
+        
       case 'text-tab':
         const text = document.getElementById('text-input').value;
         const taskType = document.getElementById('task-type').value;
+        
         if (!text.trim()) {
           throw new Error('Please enter text to process');
         }
         
-        // For generateResponse action, use 'prompt', for others use 'text'
-        if (this.currentAction === 'generateResponse') {
-          return { prompt: text.trim(), task: taskType };
-        } else {
-          return { text: text.trim(), task: taskType };
-        }
-
+        console.log('✅ Text input length:', text.trim().length);
         
-
-      
+        if (this.currentAction === 'generateResponse') {
+          return { 
+            prompt: text.trim(), 
+            task: taskType 
+          };
+        } else {
+          return { 
+            text: text.trim(), 
+            task: taskType 
+          };
+        }
+        
       default:
-        throw new Error('No input provided');
+        throw new Error('No input method selected');
     }
   }
+
+  // Enhanced file upload handler with proper PDF text extraction:
+  async handleFileUpload(file) {
+    if (!file) return null;
+    
+    try {
+      console.log('📄 Processing file:', file.name, file.type);
+      
+      if (file.type === 'application/pdf') {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+        let fullText = '';
+        
+        console.log('📖 PDF has', pdf.numPages, 'pages');
+        
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(item => item.str).join(' ');
+          fullText += pageText + ' ';
+        }
+        
+        const extractedText = fullText.trim();
+        console.log('✅ Extracted text length:', extractedText.length);
+        
+        return extractedText;
+      } else if (file.type === 'text/plain') {
+        const textContent = await file.text();
+        console.log('✅ Text file content length:', textContent.length);
+        return textContent;
+      } else {
+        throw new Error('Unsupported file type: ' + file.type);
+      }
+    } catch (error) {
+      console.error('❌ File extraction error:', error);
+      throw new Error('Failed to extract text from file: ' + error.message);
+    }
+  }
+
+  async executeAction() {
+    try {
+      console.log('🚀 Starting action:', this.currentAction); // DEBUG
+      
+      // IMPORTANT: Add await here since getPayload is now async
+      const payload = await this.getPayload();
+      console.log('📤 Sending payload:', payload); // DEBUG
+      
+      if (!payload) {
+        this.showError('Please provide valid input');
+        return;
+      }
+
+      this.setProgress(0, 'Initializing...');
+
+      const response = await fetch('/api/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          actionName: this.currentAction, 
+          payload: payload 
+        })
+      });
+
+      const result = await response.json();
+      console.log('📥 Received result:', result); // DEBUG
+
+      if (result.success) {
+        this.displayResults(result.result);
+        this.setProgress(100, 'Complete');
+      } else {
+        this.showError(result.error);
+      }
+    } catch (error) {
+      console.error('❌ Action execution error:', error);
+      this.showError(error.message);
+    }
+  }
+
+
+  
+
 
 
   // Enhanced displayResults method in your PinnacleAIDemo class
@@ -213,33 +360,185 @@ class PinnacleAIDemo {
     container.innerHTML = this.formatResultAsHTML(result);
   }
 
+  // formatResultAsHTML(data) {
+  //   if (!data || typeof data !== 'object') {
+  //     return `<div class="result-error">No data to display</div>`;
+  //   }
+
+  //   let html = '<div class="result-container">';
+    
+  //   // Handle different response types
+  //   if (data.scanId || data.fraudAlerts) {
+  //     html += this.formatFraudDetection(data);
+  //   } else if (data.extractedData) {
+  //     html += this.formatDocumentProcessing(data);
+  //   } else if (data.analysis || data.medicalConcepts) {
+  //     html += this.formatTextAnalysis(data);
+  //   } else if (data.reportId || data.executiveSummary) {
+  //     html += this.formatReport(data);
+  //   } else if (data.complianceScore || data.auditId) {
+  //     html += this.formatCompliance(data);
+  //   } else if (data.response || data.model) {
+  //     html += this.formatLLMResponse(data);
+  //   } else {
+  //     html += this.formatGenericData(data);
+  //   }
+    
+  //   html += '</div>';
+  //   return html;
+  // }
+
+  // Replace your existing formatResultAsHTML method with this fixed version:
   formatResultAsHTML(data) {
     if (!data || typeof data !== 'object') {
-      return `<div class="result-error">No data to display</div>`;
+      return `<pre class="json-formatted">${JSON.stringify(data, null, 2)}</pre>`;
     }
 
-    let html = '<div class="result-container">';
-    
-    // Handle different response types
-    if (data.scanId || data.fraudAlerts) {
-      html += this.formatFraudDetection(data);
-    } else if (data.extractedData) {
-      html += this.formatDocumentProcessing(data);
-    } else if (data.analysis || data.medicalConcepts) {
-      html += this.formatTextAnalysis(data);
-    } else if (data.reportId || data.executiveSummary) {
-      html += this.formatReport(data);
-    } else if (data.complianceScore || data.auditId) {
-      html += this.formatCompliance(data);
-    } else if (data.response || data.model) {
-      html += this.formatLLMResponse(data);
-    } else {
-      html += this.formatGenericData(data);
+    // Helper function to safely display values
+    function safeDisplay(value, fallback = 'Not specified') {
+      if (value === null || value === undefined) return fallback;
+      
+      if (typeof value === 'string') return value;
+      
+      if (typeof value === 'object') {
+        // Handle common object patterns
+        if (value.name) return value.name;
+        if (value.primary) return value.primary;
+        if (value.description) return value.description;
+        if (Array.isArray(value)) return value.join(', ');
+        
+        // Format object nicely
+        try {
+          return Object.entries(value)
+            .map(([key, val]) => `${key}: ${val}`)
+            .join(', ');
+        } catch (e) {
+          return JSON.stringify(value);
+        }
+      }
+      
+      return String(value);
     }
-    
-    html += '</div>';
-    return html;
+
+    // Handle document processing results
+    if (data.extractedData) {
+      return `<div class="result-container">
+        <div class="section-header">
+          <h3><i class="fas fa-file-medical"></i> Extracted Medical Data</h3>
+        </div>
+        
+        <div class="data-grid">
+          <div class="data-item">
+            <span class="data-label">Patient Name:</span>
+            <span class="data-value">${safeDisplay(data.extractedData.patientName, 'Patient Name Not Found')}</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Date of Birth:</span>
+            <span class="data-value">${safeDisplay(data.extractedData.dateOfBirth, 'DOB Not Found')}</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Medicaid ID:</span>
+            <span class="data-value">${safeDisplay(data.extractedData.medicaidId, 'ID Not Found')}</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Diagnosis:</span>
+            <span class="data-value">${safeDisplay(data.extractedData.diagnosis, 'Diagnosis Not Found')}</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Procedures:</span>
+            <span class="data-value">${safeDisplay(data.extractedData.procedures, 'No procedures listed')}</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Claim Amount:</span>
+            <span class="data-value">${safeDisplay(data.extractedData.claimAmount, '$0.00')}</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Provider:</span>
+            <span class="data-value">${safeDisplay(data.extractedData.provider, 'Provider Not Found')}</span>
+          </div>
+        </div>
+
+        ${data.validation ? `
+        <div class="section-header">
+          <h3><i class="fas fa-shield-check"></i> Validation Results</h3>
+        </div>
+        <div class="validation-status ${data.validation.status === 'VALID' ? 'text-success' : 'text-warning'}">
+          <strong>Status:</strong> ${data.validation.status}
+        </div>
+        ${data.validation.issues && data.validation.issues.length > 0 ? `
+          <div class="alert alert-warning">
+            <strong>Issues Found:</strong>
+            <ul>${data.validation.issues.map(issue => `<li>${issue}</li>`).join('')}</ul>
+          </div>
+        ` : ''}
+        ${data.validation.recommendations && data.validation.recommendations.length > 0 ? `
+          <div class="alert alert-info">
+            <strong>Recommendations:</strong>
+            <ul>${data.validation.recommendations.map(rec => `<li>${rec}</li>`).join('')}</ul>
+          </div>
+        ` : ''}
+        ` : ''}
+      </div>`;
+    }
+
+    // Handle other result types (fraud, compliance, etc.)
+    return this.formatOtherResults(data, safeDisplay);
   }
+
+  // Add this helper method for other result types
+  formatOtherResults(data, safeDisplay) {
+    // Handle fraud detection results
+    if (data.fraudIndicators || data.riskScore !== undefined) {
+      return `<div class="result-container">
+        <div class="section-header">
+          <h3><i class="fas fa-shield-alert"></i> Fraud Detection Results</h3>
+        </div>
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value">${data.riskLevel || 'UNKNOWN'}</div>
+            <div class="metric-label">Risk Level</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${Math.round((data.riskScore || 0) * 100)}%</div>
+            <div class="metric-label">Risk Score</div>
+          </div>
+        </div>
+
+        ${data.fraudIndicators && data.fraudIndicators.length > 0 ? `
+          <div class="alerts-container">
+            <h4>Fraud Indicators</h4>
+            ${data.fraudIndicators.map(indicator => `
+              <div class="alert alert-${indicator.severity === 'HIGH' ? 'danger' : 'warning'}">
+                <div class="alert-header">
+                  <strong>${indicator.type}</strong>
+                  <span class="badge badge-${indicator.severity === 'HIGH' ? 'high' : 'medium'}">${indicator.severity}</span>
+                </div>
+                <p>${indicator.description}</p>
+                <small><strong>Recommendation:</strong> ${indicator.recommendation}</small>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        ${data.realTimeAlerts && data.realTimeAlerts.length > 0 ? `
+          <div class="alerts-container">
+            <h4>Real-time Alerts</h4>
+            ${data.realTimeAlerts.map(alert => `
+              <div class="alert alert-${alert.priority === 'HIGH' || alert.priority === 'CRITICAL' ? 'danger' : 'warning'}">
+                <strong>${alert.type}:</strong> ${alert.message}
+                <br><small>Action: ${alert.action}</small>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>`;
+    }
+
+    // Default JSON display for unhandled types
+    return `<pre class="json-formatted">${JSON.stringify(data, null, 2)}</pre>`;
+  }
+
 
   formatFraudDetection(data) {
     let html = `
@@ -763,11 +1062,53 @@ class PinnacleAIDemo {
     this.setProgress(0, 'Error occurred');
   }
 
-  handleFileUpload(file) {
-    if (file) {
-      document.querySelector('.upload-prompt p').textContent = `Selected: ${file.name}`;
-    }
-  }
+  // handleFileUpload(file) {
+  //   if (file) {
+  //     document.querySelector('.upload-prompt p').textContent = `Selected: ${file.name}`;
+  //   }
+  // }
+  // Replace your existing handleFileUpload method with this corrected version
+  // async handleFileUpload(file) {
+  //   if (!file) return null;
+    
+  //   try {
+  //     console.log('📄 Processing file:', file.name, file.type); // DEBUG
+      
+  //     if (file.type === 'application/pdf') {
+  //       // Extract text from PDF using PDF.js
+  //       const arrayBuffer = await file.arrayBuffer();
+  //       const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+  //       let fullText = '';
+        
+  //       console.log('📖 PDF has', pdf.numPages, 'pages'); // DEBUG
+        
+  //       for (let i = 1; i <= pdf.numPages; i++) {
+  //         const page = await pdf.getPage(i);
+  //         const textContent = await page.getTextContent();
+  //         const pageText = textContent.items.map(item => item.str).join(' ');
+  //         fullText += pageText + ' ';
+  //       }
+        
+  //       const extractedText = fullText.trim();
+  //       console.log('✅ Extracted text length:', extractedText.length); // DEBUG
+  //       console.log('📝 First 200 chars:', extractedText.substring(0, 200)); // DEBUG
+        
+  //       return extractedText;
+  //     } else if (file.type === 'text/plain') {
+  //       // Handle text files
+  //       const textContent = await file.text();
+  //       console.log('✅ Text file content length:', textContent.length); // DEBUG
+  //       return textContent;
+  //     } else {
+  //       console.warn('⚠️ Unsupported file type:', file.type);
+  //       return null;
+  //     }
+  //   } catch (error) {
+  //     console.error('❌ File extraction error:', error);
+  //     return null;
+  //   }
+  // }
+
 
   exportResults() {
     const resultsContent = document.getElementById('results-content').textContent;
