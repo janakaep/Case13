@@ -1,0 +1,24 @@
+{
+  "claimId": "CLM-2025-001234",
+  "patientInfo": {
+    "medicaidId": "MD987654321",
+    "name": "John Doe",
+    "dateOfBirth": "1985-03-15",
+    "address": "123 Main St, Baltimore, MD 21201"
+  },
+  "serviceDetails": {
+    "serviceDate": "2025-08-15",
+    "provider": "Baltimore General Hospital",
+    "providerId": "PRV-12345",
+    "diagnosis": "Essential Hypertension",
+    "icd10Code": "I10",
+    "procedureCode": "99213",
+    "serviceDescription": "Office Visit - Level 3"
+  },
+  "billing": {
+    "chargedAmount": 285.00,
+    "allowedAmount": 250.00,
+    "copay": 15.00,
+    "deductible": 0.00
+  }
+}

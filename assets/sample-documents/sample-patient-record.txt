@@ -1,0 +1,33 @@
+PATIENT MEDICAL RECORD
+======================
+
+Patient Name: Sarah Johnson
+DOB: 1978-11-22
+Medicaid ID: MD456789012
+Address: 456 Oak Avenue, Annapolis, MD 21401
+
+CHIEF COMPLAINT: Follow-up for Type 2 Diabetes Mellitus
+
+HISTORY OF PRESENT ILLNESS:
+Patient is a 46-year-old female with a history of Type 2 Diabetes Mellitus, 
+well-controlled on Metformin 1000mg twice daily. She reports good adherence 
+to medication and diet modifications. Blood glucose logs show readings 
+between 110-140 mg/dL fasting.
+
+PHYSICAL EXAMINATION:
+Vitals: BP 128/78, HR 72, Temp 98.6°F, Wt 165 lbs
+General: Alert, oriented, no acute distress
+HEENT: Normal
+Cardiovascular: Regular rate and rhythm
+Respiratory: Clear bilaterally
+Extremities: No pedal edema
+
+ASSESSMENT AND PLAN:
+1. Type 2 Diabetes Mellitus - stable, continue current regimen
+2. Schedule HbA1c in 3 months
+3. Continue metformin 1000mg BID
+4. Patient education on foot care provided
+5. Return visit in 3 months
+
+Provider: Dr. Jane Smith, MD
+Date: 2025-08-20

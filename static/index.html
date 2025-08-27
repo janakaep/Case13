@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinnacle Thrive Solutions - AI/RPA Healthcare Demo</title>
+    <link rel="stylesheet" href="/static/css/theme.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <!-- <header class="main-header">
+        <div class="header-content">
+            <div class="header-section">
+            <img src="images/pts-logo.png" alt="Pinnacle Thrive Solutions Logo" class="header-logo" />
+            <div class="header-text">
+                <h4>Pinnacle AI/RPA Demo</h4>
+                <p>Advanced Healthcare Process Automation</p>
+            </div>
+            </div>
+
+
+            <div class="header-actions">
+                <div class="status-indicator">
+                    <span class="status-dot online"></span>
+                    <span>System Online</span>
+                </div>
+            </div>
+        </div>
+    </header> -->
+    <!-- <header class="main-header">
+    <div class="header-content header-3col">
+        <div class="header-left">
+            <img src="images/pts-logo.png" alt="Pinnacle Thrive Solutions Logo" class="header-logo" />
+        </div>
+        <div class="header-spacer">
+            <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>System Online</span>
+            </div>
+        </div>
+        <div class="header-right">
+        <div class="company-info">
+                <h1>Pinnacle AI/RPA Demo</h1>
+                <p>Advanced Healthcare Process Automation</p>
+            </div>
+        </div>
+    </div>
+    </header> -->
+    <header class="main-header">
+    <div class="header-content header-3col">
+        <div class="header-left">
+        <div class="company-info">
+            <h1>Pinnacle AI/RPA Demo</h1>
+            <p>Advanced Healthcare Process Automation</p>
+        </div>
+        <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>System Online</span>
+        </div>
+        </div>
+        <div class="header-spacer"></div>
+        <div class="header-right">
+        <img src="images/pts-logo.png" alt="Pinnacle Thrive Solutions Logo" class="header-logo" />
+        </div>
+    </div>
+    </header>
+
+
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="nav-section">
+                <h3><i class="fas fa-file-medical"></i> Document Processing</h3>
+                <ul>
+                    <li><a href="#" data-action="processDocument" class="nav-item active">Process Document</a></li>
+                    <li><a href="#" data-action="extractMedicalData" class="nav-item">Extract Medical Data</a></li>
+                    <li><a href="#" data-action="validateDocument" class="nav-item">Validate Document</a></li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h3><i class="fas fa-shield-alt"></i> Fraud Detection</h3>
+                <ul>
+                    <li><a href="#" data-action="detectFraud" class="nav-item">Detect Fraud</a></li>
+                    <li><a href="#" data-action="analyzePatterns" class="nav-item">Analyze Patterns</a></li>
+                    <li><a href="#" data-action="riskAssessment" class="nav-item">Risk Assessment</a></li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h3><i class="fas fa-clipboard-check"></i> Compliance</h3>
+                <ul>
+                    <li><a href="#" data-action="monitorCompliance" class="nav-item">Monitor Compliance</a></li>
+                    <li><a href="#" data-action="auditProcess" class="nav-item">Audit Process</a></li>
+                    <li><a href="#" data-action="generateComplianceReport" class="nav-item">Generate Report</a></li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h3><i class="fas fa-brain"></i> AI/LLM Processing</h3>
+                <ul>
+                    <li><a href="#" data-action="processWithLLM" class="nav-item">Process with LLM</a></li>
+                    <li><a href="#" data-action="generateResponse" class="nav-item">Generate Response</a></li>
+                    <li><a href="#" data-action="analyzeText" class="nav-item">Analyze Text</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Action Panel -->
+            <div class="action-panel">
+                <div class="panel-header">
+                    <h2 id="current-action-title">Document Processing</h2>
+                    <div class="action-controls">
+                        <button id="run-action" class="btn-primary">
+                            <i class="fas fa-play"></i> Execute Action
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="input-section">
+                    <div class="input-tabs">
+                        <button class="tab-btn active" data-tab="json">JSON Input</button>
+                        <button class="tab-btn" data-tab="file">File Upload</button>
+                        <button class="tab-btn" data-tab="text">Text Input</button>
+                    </div>
+
+                    <div class="tab-content active" id="json-tab">
+                        <textarea id="json-input" rows="8" placeholder='Enter JSON payload here...'>
+{
+  "documentType": "healthcare_claim",
+  "patientId": "MDH-123456",
+  "simulate": true
+}</textarea>
+                    </div>
+
+                    <div class="tab-content" id="file-tab">
+                        <div class="file-upload-area">
+                            <input type="file" id="file-input" accept=".pdf,.txt,.doc,.docx">
+                            <div class="upload-prompt">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Drop files here or click to browse</p>
+                                <small>Supported: PDF, TXT, DOC, DOCX</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- <div class="tab-content" id="text-tab">
+                        <textarea id="text-input" rows="8" placeholder="Enter text to process..."></textarea>
+                    </div> -->
+                    <div class="tab-content" id="text-tab">
+                    <div class="form-group">
+                        <label class="form-label">Text/Prompt Input:</label>
+                        <textarea id="text-input" rows="6" placeholder="Enter text to process or prompt for LLM response generation..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Task Type (for LLM):</label>
+                        <select id="task-type" class="form-control">
+                        <option value="analyze">Analyze Text</option>
+                        <option value="eligibility">Eligibility Assessment</option>
+                        <option value="claims">Claims Processing</option>
+                        <option value="compliance">Compliance Review</option>
+                        <option value="appeals">Appeals Processing</option>
+                        </select>
+                    </div>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section">
+                <h3>Processing Status</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-info">
+                    <span id="progress-text">Ready to process</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <div class="results-header">
+                    <h3>Results</h3>
+                    <div class="result-actions">
+                        <button id="export-results" class="btn-secondary">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button id="clear-results" class="btn-secondary">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="results-content" id="results-content">
+                    <div class="no-results">
+                        <i class="fas fa-chart-line"></i>
+                        <p>Results will appear here after processing</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Panel - System Info -->
+        <aside class="right-panel">
+            <div class="system-info">
+                <h3>System Status</h3>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <i class="fas fa-server"></i>
+                        <div>
+                            <span class="label">Status</span>
+                            <span class="value" id="system-status">Online</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-file-alt"></i>
+                        <div>
+                            <span class="label">Processed</span>
+                            <span class="value" id="docs-processed">0</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <span class="label">Uptime</span>
+                            <span class="value" id="system-uptime">00:00:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Logs -->
+            <div class="logs-section">
+                <h3>Activity Log</h3>
+                <div class="logs-container" id="logs-container">
+                    <div class="log-entry">
+                        <span class="timestamp">14:32:15</span>
+                        <span class="message">System initialized</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/components.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
